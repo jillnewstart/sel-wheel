@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>情緒急救箱：開學救援大轉盤</title>
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 載入圓潤易讀的繁體中文字體 Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-cream: #FFFDF8;
+      --border-brown: #5D4037;
+      --coral-red: #E55B5B;
+      --sunny-yellow: #F6C85F;
+      --sky-blue: #7EC4CF;
+      --sage-green: #88B882;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: var(--bg-cream);
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(246, 200, 95, 0.25) 0%, transparent 38%),
+        radial-gradient(circle at 90% 15%, rgba(126, 196, 207, 0.24) 0%, transparent 40%),
+        radial-gradient(circle at 85% 88%, rgba(229, 91, 91, 0.16) 0%, transparent 42%),
+        radial-gradient(circle at 15% 85%, rgba(136, 184, 130, 0.22) 0%, transparent 38%);
+      color: #3E2C23;
+      user-select: none;
+    }
+
+    /* 教室投影大螢幕 100vh 滿版免捲動，手機和平板直向允許自然捲動 */
+    @media (min-width: 1024px) {
+      body {
+        height: 100vh;
+        overflow: hidden;
+      }
+    }
+
+    /* 手繪兒童繪本卡片質感 */
+    .storybook-card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 3px solid #5D4037;
+      box-shadow: 0 6px 0 #5D4037, 0 14px 28px rgba(93, 64, 55, 0.12);
+      border-radius: 1.75rem;
+    }
+
+    .storybook-btn {
+      border: 2.5px solid #5D4037;
+      transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 0 #5D4037;
+    }
+    .storybook-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #5D4037;
+    }
+    .storybook-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #5D4037;
+    }
+
+    /* 輪盤外框立體繪本環 */
+    .wheel-outer-ring {
+      border: 4px solid #5D4037;
+      box-shadow: 
+        0 10px 0 #5D4037,
+        0 20px 36px rgba(93, 64, 55, 0.22),
+        inset 0 0 0 10px #FFF8EB,
+        inset 0 0 0 14px #D7B899;
+    }
+
+    /* 中央轉動按鈕脈動呼吸動畫 */
+    @keyframes gentle-pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.06); }
+    }
+    .spin-center-btn {
+      animation: gentle-pulse 2.2s infinite ease-in-out;
+    }
+    .spin-center-btn.spinning {
+      animation: none;
+      transform: translate(-50%, -50%) scale(0.94);
+    }
+
+    /* 頂部指針撥動動畫 */
+    @keyframes pointer-tick {
+      0% { transform: translateX(-50%) rotate(0deg); }
+      35% { transform: translateX(-50%) rotate(-18deg); }
+      100% { transform: translateX(-50%) rotate(0deg); }
+    }
+    .pointer-bounce {
+      animation: pointer-tick 0.16s ease-out;
+    }
+
+    /* 彈窗進場動畫 */
+    @keyframes pop-in {
+      0% { opacity: 0; transform: scale(0.9) translateY(14px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-animate {
+      animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* 法寶選中互動效果 */
+    .tool-card {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .tool-card.selected {
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- 慶祝彩帶畫布 -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- 1. 頂部精簡導覽列 -->
+  <header class="w-full max-w-[1440px] mx-auto px-4 sm:px-8 pt-3 pb-2 flex flex-wrap items-center justify-between gap-3 shrink-0">
+    <!-- 左側標題 -->
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFEAEA] border-[2.5px] border-[#5D4037] flex items-center justify-center text-3xl sm:text-4xl shadow-[0_3px_0_#5D4037]">
+        🧰
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-black tracking-wide text-[#3E2C23] leading-tight">
+          情緒急救箱：<span class="text-[#E55B5B]">開學救援大轉盤</span>
+        </h1>
+        <p class="text-xs sm:text-sm lg:text-base font-bold text-[#6D5649]">
+          轉動輪盤抽任務，一起選出最棒的救援法寶！
+        </p>
+      </div>
+    </div>
+
+    <!-- 右側狀態與操作按鈕 -->
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+      <!-- 剩餘題數進度徽章 -->
+      <div class="px-4 py-2 rounded-2xl bg-white border-[2.5px] border-[#5D4037] shadow-[0_3px_0_#5D4037] flex items-center gap-1.5 text-sm sm:text-base font-black text-[#3E2C23]">
+        <span>🎯 剩餘</span>
+        <span id="remainingCount" class="text-[#E55B5B] text-base sm:text-lg">5 / 5</span>
+        <span>題</span>
+      </div>
+
+      <!-- 全部重置按鈕 -->
+      <button onclick="resetWheel()" class="storybook-btn px-4 py-2 rounded-2xl bg-[#F6C85F] text-sm sm:text-base font-black text-[#3E2C23] flex items-center gap-1.5 cursor-pointer" title="恢復全部題目到輪盤上">
+        <span>🔄</span>
+        <span>全部重置</span>
+      </button>
+
+      <!-- 編輯題目按鈕 -->
+      <button onclick="openEditorModal()" class="storybook-btn px-4 py-2 rounded-2xl bg-white text-sm sm:text-base font-bold text-[#3E2C23] flex items-center gap-1.5 cursor-pointer" title="自訂輪盤情境題目">
+        <span>⚙️</span>
+        <span>編輯題目</span>
+      </button>
+
+      <!-- 全螢幕投影按鈕 -->
+      <button onclick="toggleFullscreen()" class="storybook-btn px-3.5 py-2 rounded-2xl bg-[#7EC4CF] text-sm sm:text-base font-black text-[#3E2C23] flex items-center gap-1.5 cursor-pointer" title="切換全螢幕投影">
+        <span>🖥️</span>
+        <span class="hidden xl:inline">全螢幕</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. 主互動區：左右雙欄 100vh 滿版配置 (無下方任務清單) -->
+  <main class="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-8 py-2 lg:py-3 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8 min-h-0">
+    
+    <!-- 左側欄 (55% 寬度)：大尺寸 SVG 向量幸運輪盤 -->
+    <section id="wheelSection" class="w-full lg:w-[55%] h-full flex flex-col items-center justify-center relative min-h-0">
+      
+      <!-- 輪盤顯示容器 -->
+      <div id="wheelWrapper" class="relative flex items-center justify-center w-full h-full max-h-[76vh]">
+        <div id="wheelBox" class="relative aspect-square w-[min(86vw,540px)] lg:w-[min(46vw,66vh)] flex items-center justify-center">
+          
+          <!-- 頂部指針箭頭 -->
+          <div id="wheelPointer" class="absolute -top-5 left-1/2 -translate-x-1/2 z-20 w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md pointer-events-none">
+            <svg viewBox="0 0 60 70" class="w-full h-full">
+              <path d="M30 66 L8 22 C4 14 10 5 20 5 H40 C50 5 56 14 52 22 Z" fill="#E55B5B" stroke="#5D4037" stroke-width="4.5" stroke-linejoin="round"/>
+              <circle cx="30" cy="20" r="7" fill="#F6C85F" stroke="#5D4037" stroke-width="2.5"/>
+            </svg>
+          </div>
+
+          <!-- 輪盤外框與 SVG 向量圓盤 -->
+          <div class="w-full h-full rounded-full wheel-outer-ring bg-[#FFF8EB] p-3 sm:p-4 relative flex items-center justify-center overflow-hidden">
+            <div id="wheelRotator" class="w-full h-full rounded-full will-change-transform cursor-pointer" onclick="spinWheel()">
+              <svg id="wheelSvg" viewBox="0 0 500 500" class="w-full h-full block overflow-visible"></svg>
+            </div>
+            
+            <!-- 中央大按鈕：轉動輪盤！ -->
+            <button id="spinBtn" onclick="spinWheel()" class="spin-center-btn absolute top-1/2 left-1/2 w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full bg-gradient-to-b from-[#F07171] to-[#E55B5B] border-4 border-[#5D4037] shadow-[0_5px_0_#5D4037] flex flex-col items-center justify-center text-white cursor-pointer z-10 hover:brightness-105">
+              <span class="text-xl sm:text-2xl lg:text-3xl font-black leading-tight tracking-wider drop-shadow-[0_2px_0_#5D4037]">轉動</span>
+              <span class="text-sm sm:text-base lg:text-lg font-bold leading-tight drop-shadow-[0_1px_0_#5D4037]">輪盤！</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 全部 5 題完成時的慶祝畫面 (預設隱藏) -->
+      <div id="allCompletedCard" class="hidden w-full max-w-xl storybook-card p-8 sm:p-10 text-center flex-col items-center justify-center gap-5 bg-[#FFFDF8]">
+        <div class="text-6xl sm:text-7xl animate-bounce">🎉</div>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-[#E55B5B] leading-snug">
+          🎉 全部任務挑戰完成！
+        </h2>
+        <p class="text-base sm:text-lg font-bold text-[#5D4037]">
+          大家都能活用「愛心放大鏡、同理溫度計、支援按鈕」，成為最溫暖的救援小英雄！
+        </p>
+        <button onclick="resetWheel()" class="storybook-btn mt-2 px-8 py-4 rounded-2xl bg-[#F6C85F] text-[#3E2C23] font-black text-lg sm:text-xl flex items-center gap-2 cursor-pointer">
+          <span>🔄</span>
+          <span>再玩一次</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- 右側欄 (45% 寬度)：✨ 我的救援三寶圖鑑 (平行三個獨立工具，無第一步至第三步順序標籤) -->
+    <aside class="w-full lg:w-[45%] h-full flex flex-col justify-center min-h-0">
+      <div class="storybook-card p-5 sm:p-6 lg:p-7 flex flex-col justify-between h-full max-h-[82vh]">
+        
+        <!-- 卡片區標題 -->
+        <div class="flex items-center justify-between gap-2 pb-3 border-b-2 border-[#EADBC8] shrink-0">
+          <h2 class="text-xl sm:text-2xl lg:text-[26px] font-black text-[#3E2C23] flex items-center gap-2">
+            <span>✨</span>
+            <span>我的救援三寶圖鑑</span>
+          </h2>
+          <span class="text-xs sm:text-sm font-black px-3 py-1 rounded-full bg-[#FFF3D6] border-2 border-[#5D4037] text-[#3E2C23]">
+            自由選擇・不限答案
+          </span>
+        </div>
+
+        <!-- 3 張平行排列法寶卡片 -->
+        <div class="flex-1 flex flex-col justify-evenly gap-3 sm:gap-4 my-3 min-h-0">
+          
+          <!-- 寶物 1：愛心放大鏡 -->
+          <div class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFF7E2] border-[2.5px] border-[#5D4037] shadow-[0_3px_0_#5D4037]">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-white border-2 border-[#5D4037] flex items-center justify-center text-3xl sm:text-4xl">
+              🔍
+            </div>
+            <div>
+              <div class="font-black text-lg sm:text-xl lg:text-2xl text-[#B45309] mb-1">
+                愛心放大鏡
+              </div>
+              <p class="text-sm sm:text-base lg:text-lg font-bold text-[#3E2C23] leading-snug">
+                看見需要，並有勇氣說出心裡的感受
+              </p>
+            </div>
+          </div>
+
+          <!-- 寶物 2：同理溫度計 -->
+          <div class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-[#EEF8FA] border-[2.5px] border-[#5D4037] shadow-[0_3px_0_#5D4037]">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-white border-2 border-[#5D4037] flex items-center justify-center text-3xl sm:text-4xl">
+              🌡️
+            </div>
+            <div>
+              <div class="font-black text-lg sm:text-xl lg:text-2xl text-[#236B78] mb-1">
+                同理溫度計
+              </div>
+              <p class="text-sm sm:text-base lg:text-lg font-bold text-[#3E2C23] leading-snug">
+                感受心情，試著理解對方現在的感覺
+              </p>
+            </div>
+          </div>
+
+          <!-- 寶物 3：支援按鈕 -->
+          <div class="flex items-center gap-4 p-4 sm:p-5 rounded-2xl bg-[#FFECEB] border-[2.5px] border-[#5D4037] shadow-[0_3px_0_#5D4037]">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-2xl bg-white border-2 border-[#5D4037] flex items-center justify-center text-3xl sm:text-4xl">
+              🔴
+            </div>
+            <div>
+              <div class="font-black text-lg sm:text-xl lg:text-2xl text-[#C8433C] mb-1">
+                支援按鈕
+              </div>
+              <p class="text-sm sm:text-base lg:text-lg font-bold text-[#3E2C23] leading-snug">
+                伸出援手，自己解決不了時勇敢找人幫忙
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 底部核心金句 -->
+        <div class="pt-3 border-t-2 border-[#EADBC8] text-center shrink-0">
+          <p class="text-sm sm:text-base lg:text-lg font-black text-[#E55B5B] tracking-wider">
+            💛 看見需要，感受心情，伸出援手 💛
+          </p>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- 情境任務卡彈窗 (Interactive Scenario Modal) -->
+  <!-- ========================================================= -->
+  <div id="scenarioModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-black/55 backdrop-blur-sm">
+    <div class="modal-animate w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-[2rem] bg-[#FFFDF8] border-4 border-[#5D4037] shadow-[0_10px_0_#5D4037] p-5 sm:p-8 relative">
+      
+      <!-- 頂部題目標題與關閉 -->
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <span class="px-4 py-1.5 rounded-full bg-[#E55B5B] border-2 border-[#5D4037] text-white font-black text-base sm:text-lg shadow-[0_2px_0_#5D4037]">
+            開學任務
+          </span>
+          <h2 id="modalTitle" class="text-2xl sm:text-3xl md:text-4xl font-black text-[#3E2C23]">
+            1. 肚子痛的同桌
+          </h2>
+        </div>
+        <button onclick="closeScenarioModal(false)" class="w-10 h-10 rounded-full bg-[#F5EBE0] border-2 border-[#5D4037] hover:bg-[#E6D5C3] text-[#3E2C23] font-black text-xl flex items-center justify-center cursor-pointer" title="先保留這題並關閉">
+          ✕
+        </button>
+      </div>
+
+      <!-- 大字情境內容區 -->
+      <div class="rounded-3xl bg-[#FFF6E5] border-3 border-[#5D4037] p-5 sm:p-7 mb-6">
+        <p id="modalText" class="text-xl sm:text-2xl md:text-[28px] font-bold text-[#3E2C23] leading-relaxed tracking-wide">
+          「上課上到一半，你發現同桌的同學一直趴在桌上皺著眉頭、手按著肚子，看起來很不舒服……」
+        </p>
+      </div>
+
+      <!-- 互動法寶選擇器（可複選） -->
+      <div class="mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h3 class="text-lg sm:text-xl font-black text-[#3E2C23] flex items-center gap-2">
+            <span>🪄</span>
+            <span>請為我選出你想要救援的法寶（可複選）：</span>
+          </h3>
+          <span class="text-xs sm:text-sm font-bold text-[#6D5649]">點擊法寶會出現專屬說話引導 👇</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <!-- 法寶 1：愛心放大鏡 -->
+          <button type="button" id="toolBtn-0" onclick="toggleToolSelection(0)" class="tool-card text-left p-4 rounded-2xl bg-white border-[2.5px] border-[#5D4037] shadow-[0_3px_0_#5D4037] cursor-pointer flex flex-col justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl sm:text-4xl">🔍</span>
+              <div>
+                <div class="font-black text-lg sm:text-xl text-[#B45309]">愛心放大鏡</div>
+                <div class="text-xs sm:text-sm font-bold text-[#78350F]">看見需要・說出感受</div>
+              </div>
+            </div>
+            <div class="mt-2 text-xs font-bold text-right text-[#8C7A6B] tool-status-text">點擊選擇法寶</div>
+          </button>
+
+          <!-- 法寶 2：同理溫度計 -->
+          <button type="button" id="toolBtn-1" onclick="toggleToolSelection(1)" class="tool-card text-left p-4 rounded-2xl bg-white border-[2.5px] border-[#5D4037] shadow-[0_3px_0_#5D4037] cursor-pointer flex flex-col justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl sm:text-4xl">🌡️</span>
+              <div>
+                <div class="font-black text-lg sm:text-xl text-[#236B78]">同理溫度計</div>
+                <div class="text-xs sm:text-sm font-bold text-[#155E75]">感受心情</div>
+              </div>
+            </div>
+            <div class="mt-2 text-xs font-bold text-right text-[#8C7A6B] tool-status-text">點擊選擇法寶</div>
+          </button>
+
+          <!-- 法寶 3：支援按鈕 -->
+          <button type="button" id="toolBtn-2" onclick="toggleToolSelection(2)" class="tool-card text-left p-4 rounded-2xl bg-white border-[2.5px] border-[#5D4037] shadow-[0_3px_0_#5D4037] cursor-pointer flex flex-col justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl sm:text-4xl">🔴</span>
+              <div>
+                <div class="font-black text-lg sm:text-xl text-[#C8433C]">支援按鈕</div>
+                <div class="text-xs sm:text-sm font-bold text-[#991B1B]">伸出援手</div>
+              </div>
+            </div>
+            <div class="mt-2 text-xs font-bold text-right text-[#8C7A6B] tool-status-text">點擊選擇法寶</div>
+          </button>
+        </div>
+
+        <!-- 動態專屬句型鷹架區 -->
+        <div id="scaffoldContainer" class="mt-4 space-y-3">
+          <div class="p-4 sm:p-5 rounded-2xl bg-[#F4F9F3] border-2 border-dashed border-[#88B882] text-center text-[#3E2C23] font-bold text-base sm:text-lg">
+            💡 請為我選出你想要救援的法寶！點擊上方法寶圖示，就會出現專屬的說話引導句型喔！
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部操作按鈕 -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t-2 border-[#EADBC8]">
+        <button onclick="closeScenarioModal(false)" class="storybook-btn px-5 py-3 rounded-2xl bg-[#F3ECE1] text-[#3E2C23] font-bold text-base sm:text-lg cursor-pointer">
+          先保留這題
+        </button>
+
+        <button onclick="completeScenario()" class="storybook-btn px-7 py-3.5 rounded-2xl bg-[#88B882] text-[#1E351B] font-black text-lg sm:text-xl flex items-center gap-2 cursor-pointer">
+          <span>✅</span>
+          <span>完成這題，繼續下一題</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- 老師編輯題目彈窗 (Teacher Editor Modal) -->
+  <!-- ========================================================= -->
+  <div id="editorModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-black/55 backdrop-blur-sm">
+    <div class="modal-animate w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[2rem] bg-[#FFFDF8] border-4 border-[#5D4037] shadow-[0_10px_0_#5D4037] p-5 sm:p-7">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-black text-[#3E2C23] flex items-center gap-2">
+          <span>⚙️</span>
+          <span>編輯輪盤情境題目</span>
+        </h2>
+        <button onclick="closeEditorModal()" class="w-10 h-10 rounded-full bg-[#F5EBE0] border-2 border-[#5D4037] hover:bg-[#E6D5C3] text-[#3E2C23] font-black text-xl flex items-center justify-center cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <p class="text-sm sm:text-base text-[#5D4037] font-medium mb-4">
+        您可以自訂輪盤扇形上的題目標題與完整情境內容（儲存後會自動重置輪盤題庫）。
+      </p>
+
+      <div id="editorList" class="space-y-4 mb-5"></div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t-2 border-[#EADBC8]">
+        <div class="flex flex-wrap gap-2">
+          <button type="button" onclick="addEditorRow()" class="storybook-btn px-4 py-2 rounded-xl bg-[#EEF8FA] text-[#236B78] font-bold text-sm sm:text-base cursor-pointer">
+            ＋ 新增一題
+          </button>
+          <button type="button" onclick="restoreDefaultScenarios()" class="storybook-btn px-4 py-2 rounded-xl bg-[#FFF3D6] text-[#8A5A00] font-bold text-sm sm:text-base cursor-pointer">
+            ↺ 恢復預設 5 題
+          </button>
+        </div>
+        <div class="flex gap-2">
+          <button type="button" onclick="closeEditorModal()" class="storybook-btn px-4 py-2 rounded-xl bg-[#F3ECE1] text-[#3E2C23] font-bold text-sm sm:text-base cursor-pointer">
+            取消
+          </button>
+          <button type="button" onclick="saveEditorScenarios()" class="storybook-btn px-6 py-2 rounded-xl bg-[#E55B5B] text-white font-black text-sm sm:text-base cursor-pointer">
+            💾 儲存並更新輪盤
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示訊息 Toast -->
+  <div id="toastMsg" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full bg-[#3E2C23] border-2 border-[#F6C85F] text-white font-bold text-base shadow-xl opacity-0 pointer-events-none transition-opacity duration-300">
+    提示訊息
+  </div>
+
+  <script>
+    // =========================================================
+    // 1. 預設 5 道開學救援情境題資料 (已更新為手札、藍天巨石陣、迎風廣場，並移除早自習/鐘聲/聯絡簿)
+    // =========================================================
+    const DEFAULT_SCENARIOS = [
+      {
+        id: 1,
+        title: "1. 肚子痛的同桌",
+        text: "上課上到一半，你發現同桌的同學一直趴在桌上皺著眉頭、手按著肚子，看起來很不舒服……"
+      },
+      {
+        id: 2,
+        title: "2. 打翻的水壺",
+        text: "午休前大家在收拾桌面，旁邊同學的水壺沒蓋好倒了下來，把他的手札和鉛筆盒全都弄濕了……"
+      },
+      {
+        id: 3,
+        title: "3. 接力賽的眼淚",
+        text: "體適能課分組玩接力賽，最後一棒的同學不小心跌倒、輸了比賽，他回到隊伍旁邊，眼眶紅紅的都不說話……"
+      },
+      {
+        id: 4,
+        title: "4. 作業太多寫不完",
+        text: "看著桌上一疊還沒寫完的作業和學習單，覺得時間根本來不及，急得在位子上快哭出來……"
+      },
+      {
+        id: 5,
+        title: "5. 大下課的孤單",
+        text: "大下課了，同學都到藍天巨石陣和朋友玩，但有一個人在迎風廣場孤單看著大家……"
+      }
+    ];
+
+    // 輪盤扇形手繪水彩高對比配色（鵝黃、天空藍、粉珊瑚、薄荷綠、暖橘）
+    const SLICE_COLORS = [
+      { bg: "#F6C85F", text: "#3E2C23" }, // 鵝黃
+      { bg: "#7EC4CF", text: "#14363D" }, // 天空藍
+      { bg: "#F28B82", text: "#471611" }, // 粉珊瑚
+      { bg: "#88B882", text: "#1B3318" }, // 薄荷綠
+      { bg: "#F4A261", text: "#421E05" }, // 暖橘
+      { bg: "#C8B6FF", text: "#2A1459" }, // 粉薰衣草
+      { bg: "#A8DADC", text: "#143242" }, // 淺水藍
+      { bg: "#FFB5A7", text: "#471710" }  // 蜜桃粉
+    ];
+
+    // 三大法寶各自專屬的說話引導句型
+    const MAGIC_TOOLS = [
+      {
+        name: "愛心放大鏡",
+        icon: "🔍",
+        cardBg: "bg-[#FFF7E2] border-[#5D4037] text-[#3E2C23]",
+        sentence: "🔍 愛心放大鏡：「我發現<span class='text-[#B45309] underline decoration-wavy decoration-[#F6C85F] underline-offset-4'>＿＿＿＿＿＿＿＿</span>，我可以<span class='text-[#236B78] underline decoration-wavy decoration-[#7EC4CF] underline-offset-4'>＿＿＿＿＿＿＿＿</span>！」"
+      },
+      {
+        name: "同理溫度計",
+        icon: "🌡️",
+        cardBg: "bg-[#EEF8FA] border-[#5D4037] text-[#3E2C23]",
+        sentence: "🌡️ 同理溫度計：「我覺得他現在心裡一定覺得<span class='text-[#236B78] underline decoration-wavy decoration-[#7EC4CF] underline-offset-4'>＿＿＿＿＿＿＿＿</span>，我想對他說<span class='text-[#B45309] underline decoration-wavy decoration-[#F6C85F] underline-offset-4'>＿＿＿＿＿＿＿＿</span>！」"
+      },
+      {
+        name: "支援按鈕",
+        icon: "🔴",
+        cardBg: "bg-[#FFECEB] border-[#5D4037] text-[#3E2C23]",
+        sentence: "🔴 支援按鈕：「我想幫他找<span class='text-[#C8433C] underline decoration-wavy decoration-[#E55B5B] underline-offset-4'>＿＿＿＿＿＿＿＿</span>幫忙！」"
+      }
+    ];
+
+    // 狀態管理（每次重新整理網頁皆完整載入 5 題）
+    let allScenarios = DEFAULT_SCENARIOS.map(item => ({ ...item }));
+    let remainingScenarios = DEFAULT_SCENARIOS.map(item => ({ ...item }));
+    let currentRotation = 0; // 單位：度 (deg)
+    let isSpinning = false;
+    let activeScenario = null;
+    let selectedTools = new Set();
+    let audioCtx = null;
+
+    // =========================================================
+    // 2. Web Audio API 清脆音效引擎 (無外部音訊檔依賴)
+    // =========================================================
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    function playTickSound() {
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(520 + Math.random() * 140, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.045);
+
+        gain.gain.setValueAtTime(0.16, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.045);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      } catch (e) {
+        // 忽略瀏覽器自動播放限制錯誤
+      }
+    }
+
+    function playFanfareSound() {
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          const startTime = audioCtx.currentTime + idx * 0.09;
+          osc.frequency.setValueAtTime(freq, startTime);
+
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.linearRampToValueAtTime(0.18, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.36);
+        });
+      } catch (e) {
+        // 忽略音訊錯誤
+      }
+    }
+
+    function playSelectSound(isSelect) {
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(isSelect ? 587.33 : 440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(isSelect ? 880 : 330, audioCtx.currentTime + 0.1);
+
+        gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.11);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.12);
+      } catch (e) {}
+    }
+
+    // =========================================================
+    // 3. SVG 向量扇形輪盤渲染 (數學精準置中 + 左半邊自動翻轉 180 度)
+    // =========================================================
+    function polarToCartesian(cx, cy, r, angleDeg) {
+      // 0 度定義在正上方 (12 點鐘方向)，順時針遞增
+      const rad = (angleDeg - 90) * Math.PI / 180;
+      return {
+        x: cx + r * Math.cos(rad),
+        y: cy + r * Math.sin(rad)
+      };
+    }
+
+    function splitTitleLines(title) {
+      // 智慧將標題分成 1~2 行，避免在扇形內太長
+      const spaceIdx = title.indexOf(" ");
+      if (spaceIdx > 0 && title.length > 7) {
+        return [title.slice(0, spaceIdx), title.slice(spaceIdx + 1)];
+      }
+      if (title.length > 7) {
+        const mid = Math.ceil(title.length / 2);
+        return [title.slice(0, mid), title.slice(mid)];
+      }
+      return [title];
+    }
+
+    function renderWheelSVG() {
+      const svg = document.getElementById("wheelSvg");
+      const count = remainingScenarios.length;
+      const wheelWrapper = document.getElementById("wheelWrapper");
+      const allCompletedCard = document.getElementById("allCompletedCard");
+      const remainingCountEl = document.getElementById("remainingCount");
+
+      remainingCountEl.textContent = `${count} / ${allScenarios.length}`;
+
+      if (count === 0) {
+        wheelWrapper.classList.add("hidden");
+        allCompletedCard.classList.remove("hidden");
+        allCompletedCard.classList.add("flex");
+        return;
+      } else {
+        wheelWrapper.classList.remove("hidden");
+        allCompletedCard.classList.add("hidden");
+        allCompletedCard.classList.remove("flex");
+      }
+
+      const cx = 250;
+      const cy = 250;
+      const radius = 244;
+      const sliceAngle = 360 / count;
+      let svgMarkup = "";
+
+      if (count === 1) {
+        // 僅剩最後 1 題時的整圓扇形渲染
+        const item = remainingScenarios[0];
+        const color = SLICE_COLORS[(item.id - 1) % SLICE_COLORS.length];
+        const lines = splitTitleLines(item.title);
+        svgMarkup += `
+          <circle cx="${cx}" cy="${cy}" r="${radius}" fill="${color.bg}" stroke="#5D4037" stroke-width="4" />
+          <g transform="translate(${cx}, ${cy - 115})">
+            ${lines.map((line, i) => `
+              <text x="0" y="${i * 30 - (lines.length - 1) * 15}"
+                text-anchor="middle" dominant-baseline="central"
+                font-size="25" font-weight="900" fill="${color.text}"
+                stroke="#FFFFFF" stroke-width="5" paint-order="stroke" stroke-linejoin="round">
+                ${escapeHtml(line)}
+              </text>
+            `).join("")}
+          </g>
+        `;
+      } else {
+        remainingScenarios.forEach((item, idx) => {
+          const startAngle = idx * sliceAngle;
+          const endAngle = startAngle + sliceAngle;
+          const midAngle = startAngle + sliceAngle / 2;
+          const color = SLICE_COLORS[(item.id - 1) % SLICE_COLORS.length];
+
+          const startPt = polarToCartesian(cx, cy, radius, startAngle);
+          const endPt = polarToCartesian(cx, cy, radius, endAngle);
+          const largeArcFlag = sliceAngle > 180 ? 1 : 0;
+
+          const pathData = [
+            `M ${cx} ${cy}`,
+            `L ${startPt.x.toFixed(2)} ${startPt.y.toFixed(2)}`,
+            `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endPt.x.toFixed(2)} ${endPt.y.toFixed(2)}`,
+            "Z"
+          ].join(" ");
+
+          // 計算文字群組的幾何正中央位置 (距離圓心 152px，完美避開中央按鈕與外框)
+          const textRadius = count <= 3 ? 145 : 154;
+          const textPos = polarToCartesian(cx, cy, textRadius, midAngle);
+
+          // 沿著扇形輻射線對齊；若位於左半邊 (midAngle > 180)，自動翻轉 180 度保持正向易讀
+          let textRotate = midAngle - 90;
+          if (midAngle > 180) {
+            textRotate += 180;
+          }
+
+          const lines = splitTitleLines(item.title);
+          const fontSize = count <= 3 ? 23 : (count === 4 ? 21 : 19.5);
+          const lineHeight = fontSize + 5;
+
+          svgMarkup += `
+            <path d="${pathData}" fill="${color.bg}" stroke="#5D4037" stroke-width="3.5" stroke-linejoin="round" />
+            <g transform="translate(${textPos.x.toFixed(2)}, ${textPos.y.toFixed(2)}) rotate(${textRotate.toFixed(2)})">
+              ${lines.map((line, lineIdx) => {
+                const offsetY = (lineIdx - (lines.length - 1) / 2) * lineHeight;
+                return `
+                  <text x="0" y="${offsetY.toFixed(1)}"
+                    text-anchor="middle" dominant-baseline="central"
+                    font-size="${fontSize}" font-weight="900" fill="${color.text}"
+                    stroke="#FFFFFF" stroke-width="4.5" paint-order="stroke" stroke-linejoin="round">
+                    ${escapeHtml(line)}
+                  </text>
+                `;
+              }).join("")}
+            </g>
+          `;
+        });
+      }
+
+      // 內圈裝飾虛線圓環
+      svgMarkup += `
+        <circle cx="${cx}" cy="${cy}" r="76" fill="none" stroke="#5D4037" stroke-width="2" stroke-dasharray="6 6" opacity="0.45" />
+      `;
+
+      svg.innerHTML = svgMarkup;
+    }
+
+    // =========================================================
+    // 4. 輪盤旋轉抽題動畫與指針精準判定
+    // =========================================================
+    function spinWheel() {
+      if (isSpinning || remainingScenarios.length === 0) return;
+
+      isSpinning = true;
+      const spinBtn = document.getElementById("spinBtn");
+      const rotator = document.getElementById("wheelRotator");
+      const pointer = document.getElementById("wheelPointer");
+
+      spinBtn.classList.add("spinning");
+      spinBtn.disabled = true;
+
+      const count = remainingScenarios.length;
+      const sliceAngle = 360 / count;
+
+      // 隨機決定旋轉圈數 (5 ~ 8 圈) 與額外隨機角度
+      const extraSpins = (5 + Math.floor(Math.random() * 4)) * 360;
+      const randomOffset = Math.floor(Math.random() * 360);
+      const startRotation = currentRotation;
+      const targetRotation = startRotation + extraSpins + randomOffset;
+      const duration = 3600; // 3.6 秒平滑減速
+      const startTime = performance.now();
+
+      let lastSliceIndex = -1;
+
+      function animateSpin(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Cubic Ease-Out 減速曲線
+        const easeOut = 1 - Math.pow(1 - progress, 3.2);
+        currentRotation = startRotation + (targetRotation - startRotation) * easeOut;
+
+        rotator.style.transform = `rotate(${currentRotation}deg)`;
+
+        // 計算目前頂部指針 (0度) 所指的扇形索引，觸發清脆撥動音效與指針跳動
+        const normalizedAngle = ((360 - (currentRotation % 360)) % 360 + 360) % 360;
+        const currentSliceIndex = Math.floor(normalizedAngle / sliceAngle) % count;
+
+        if (currentSliceIndex !== lastSliceIndex) {
+          lastSliceIndex = currentSliceIndex;
+          playTickSound();
+          pointer.classList.remove("pointer-bounce");
+          void pointer.offsetWidth; // 重新觸發動畫
+          pointer.classList.add("pointer-bounce");
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          isSpinning = false;
+          spinBtn.classList.remove("spinning");
+          spinBtn.disabled = false;
+
+          const finalAngle = ((360 - (currentRotation % 360)) % 360 + 360) % 360;
+          const winnerIndex = Math.floor(finalAngle / sliceAngle) % count;
+          const winnerScenario = remainingScenarios[winnerIndex];
+
+          playFanfareSound();
+          setTimeout(() => {
+            openScenarioModal(winnerScenario);
+          }, 320);
+        }
+      }
+
+      requestAnimationFrame(animateSpin);
+    }
+
+    // =========================================================
+    // 5. 任務卡彈窗與三大法寶互動句型
+    // =========================================================
+    function openScenarioModal(scenario) {
+      activeScenario = scenario;
+      selectedTools.clear();
+
+      document.getElementById("modalTitle").textContent = scenario.title;
+      document.getElementById("modalText").textContent = `「${scenario.text}」`;
+
+      updateToolCardsUI();
+      renderScaffoldBoxes();
+
+      const modal = document.getElementById("scenarioModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeScenarioModal(markDone) {
+      const modal = document.getElementById("scenarioModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+
+      if (markDone && activeScenario) {
+        remainingScenarios = remainingScenarios.filter(item => item.id !== activeScenario.id);
+        activeScenario = null;
+        renderWheelSVG();
+
+        if (remainingScenarios.length === 0) {
+          launchConfetti();
+          playFanfareSound();
+        } else {
+          showToast(`已完成一題！輪盤還剩下 ${remainingScenarios.length} 個任務`);
+        }
+      }
+    }
+
+    function completeScenario() {
+      closeScenarioModal(true);
+    }
+
+    function toggleToolSelection(toolIndex) {
+      if (selectedTools.has(toolIndex)) {
+        selectedTools.delete(toolIndex);
+        playSelectSound(false);
+      } else {
+        selectedTools.add(toolIndex);
+        playSelectSound(true);
+      }
+      updateToolCardsUI();
+      renderScaffoldBoxes();
+    }
+
+    function updateToolCardsUI() {
+      const activeStyles = [
+        "bg-[#FFF3D6] ring-4 ring-[#F6C85F]",
+        "bg-[#E3F5F8] ring-4 ring-[#7EC4CF]",
+        "bg-[#FFE4E2] ring-4 ring-[#E55B5B]"
+      ];
+
+      for (let i = 0; i < 3; i++) {
+        const btn = document.getElementById(`toolBtn-${i}`);
+        const statusText = btn.querySelector(".tool-status-text");
+        btn.classList.remove("selected", "bg-white", ...activeStyles.flatMap(s => s.split(" ")));
+
+        if (selectedTools.has(i)) {
+          btn.classList.add("selected", ...activeStyles[i].split(" "));
+          statusText.textContent = "✅ 已選出此法寶";
+          statusText.classList.remove("text-[#8C7A6B]");
+          statusText.classList.add("text-[#3E2C23]");
+        } else {
+          btn.classList.add("bg-white");
+          statusText.textContent = "點擊選擇法寶";
+          statusText.classList.remove("text-[#3E2C23]");
+          statusText.classList.add("text-[#8C7A6B]");
+        }
+      }
+    }
+
+    function renderScaffoldBoxes() {
+      const container = document.getElementById("scaffoldContainer");
+      if (selectedTools.size === 0) {
+        container.innerHTML = `
+          <div class="p-4 sm:p-5 rounded-2xl bg-[#F4F9F3] border-2 border-dashed border-[#88B882] text-center text-[#3E2C23] font-bold text-base sm:text-lg">
+            💡 請為我選出你想要救援的法寶！點擊上方法寶圖示，就會出現專屬的說話引導句型喔！
+          </div>
+        `;
+        return;
+      }
+
+      // 依照法寶順序渲染所有已選取的專屬引導句型
+      const sortedIndices = Array.from(selectedTools).sort((a, b) => a - b);
+      container.innerHTML = sortedIndices.map(idx => {
+        const tool = MAGIC_TOOLS[idx];
+        return `
+          <div class="p-4 sm:p-5 rounded-2xl ${tool.cardBg} border-[2.5px] shadow-[0_3px_0_#5D4037] text-lg sm:text-xl md:text-2xl font-black leading-relaxed">
+            ${tool.sentence}
+          </div>
+        `;
+      }).join("");
+    }
+
+    // =========================================================
+    // 6. 重置輪盤與老師編輯題目彈窗
+    // =========================================================
+    function resetWheel() {
+      if (isSpinning) return;
+      remainingScenarios = allScenarios.map(item => ({ ...item }));
+      currentRotation = 0;
+      const rotator = document.getElementById("wheelRotator");
+      if (rotator) {
+        rotator.style.transform = "rotate(0deg)";
+      }
+      renderWheelSVG();
+      showToast("🔄 已將全部題目重新放回輪盤！");
+    }
+
+    function openEditorModal() {
+      if (isSpinning) return;
+      const list = document.getElementById("editorList");
+      list.innerHTML = "";
+
+      allScenarios.forEach((item, idx) => {
+        appendEditorRow(item.title, item.text, idx + 1);
+      });
+
+      const modal = document.getElementById("editorModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeEditorModal() {
+      const modal = document.getElementById("editorModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function appendEditorRow(title = "", text = "", number = null) {
+      const list = document.getElementById("editorList");
+      const rowNum = number || list.children.length + 1;
+      const div = document.createElement("div");
+      div.className = "p-4 rounded-2xl bg-[#FFF8EB] border-2 border-[#5D4037] space-y-2.5 editor-row";
+      div.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-black text-[#E55B5B] text-base">題目 #${rowNum}</span>
+          <button type="button" onclick="removeEditorRow(this)" class="px-2.5 py-1 rounded-lg bg-[#FFEAEA] border border-[#5D4037] text-xs font-bold text-[#C8433C] hover:bg-[#FFD6D6] cursor-pointer">
+            🗑️ 刪除
+          </button>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[#5D4037] mb-1">輪盤扇形短標題：</label>
+          <input type="text" class="editor-title w-full px-3 py-2 rounded-xl bg-white border-2 border-[#5D4037] font-bold text-[#3E2C23] focus:outline-none focus:ring-2 focus:ring-[#F6C85F]" value="${escapeAttr(title)}" placeholder="例如：1. 肚子痛的同桌" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-[#5D4037] mb-1">彈窗完整情境內容：</label>
+          <textarea rows="2" class="editor-text w-full px-3 py-2 rounded-xl bg-white border-2 border-[#5D4037] font-medium text-[#3E2C23] focus:outline-none focus:ring-2 focus:ring-[#F6C85F]" placeholder="請輸入完整情境描述...">${escapeHtml(text)}</textarea>
+        </div>
+      `;
+      list.appendChild(div);
+    }
+
+    function addEditorRow() {
+      const list = document.getElementById("editorList");
+      if (list.children.length >= 8) {
+        showToast("輪盤最多建議設定 8 題，字體才不會太小喔！");
+        return;
+      }
+      const nextNum = list.children.length + 1;
+      appendEditorRow(`${nextNum}. 新救援任務`, "", nextNum);
+    }
+
+    function removeEditorRow(btn) {
+      const list = document.getElementById("editorList");
+      if (list.children.length <= 2) {
+        showToast("輪盤至少需要保留 2 道題目喔！");
+        return;
+      }
+      btn.closest(".editor-row").remove();
+      Array.from(list.children).forEach((row, idx) => {
+        row.querySelector("span").textContent = `題目 #${idx + 1}`;
+      });
+    }
+
+    function restoreDefaultScenarios() {
+      const list = document.getElementById("editorList");
+      list.innerHTML = "";
+      DEFAULT_SCENARIOS.forEach((item, idx) => {
+        appendEditorRow(item.title, item.text, idx + 1);
+      });
+      showToast("已載入預設 5 題，請記得按「儲存並更新輪盤」！");
+    }
+
+    function saveEditorScenarios() {
+      const rows = document.querySelectorAll(".editor-row");
+      const updated = [];
+
+      rows.forEach((row, idx) => {
+        const titleVal = row.querySelector(".editor-title").value.trim();
+        const textVal = row.querySelector(".editor-text").value.trim();
+        if (titleVal && textVal) {
+          updated.push({
+            id: idx + 1,
+            title: titleVal,
+            text: textVal
+          });
+        }
+      });
+
+      if (updated.length < 2) {
+        showToast("請至少填寫完整 2 道題目的標題與內容！");
+        return;
+      }
+
+      allScenarios = updated;
+      remainingScenarios = updated.map(item => ({ ...item }));
+      currentRotation = 0;
+      document.getElementById("wheelRotator").style.transform = "rotate(0deg)";
+
+      renderWheelSVG();
+      closeEditorModal();
+      showToast("✅ 已更新輪盤題目！");
+    }
+
+    // =========================================================
+    // 7. 全螢幕切換、提示氣泡與彩帶慶祝特效
+    // =========================================================
+    function toggleFullscreen() {
+      try {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      } catch (e) {
+        showToast("您的瀏覽器目前不支援一鍵全螢幕，可按鍵盤 F11 切換！");
+      }
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById("toastMsg");
+      toast.textContent = message;
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+      }, 2800);
+    }
+
+    function launchConfetti() {
+      const canvas = document.getElementById("confettiCanvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const colors = ["#F6C85F", "#7EC4CF", "#E55B5B", "#88B882", "#F4A261"];
+      const pieces = Array.from({ length: 95 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        w: 8 + Math.random() * 8,
+        h: 10 + Math.random() * 10,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speedY: 2.5 + Math.random() * 3.5,
+        speedX: -1.5 + Math.random() * 3,
+        rot: Math.random() * 360,
+        rotSpeed: -4 + Math.random() * 8
+      }));
+
+      let frame = 0;
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.y += p.speedY;
+          p.x += p.speedX;
+          p.rot += p.rotSpeed;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+
+        frame++;
+        if (frame < 190) {
+          requestAnimationFrame(draw);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str).replace(/'/g, "&#39;");
+    }
+
+    // 頁面載入完成後初始化 SVG 輪盤
+    window.addEventListener("DOMContentLoaded", () => {
+      renderWheelSVG();
+    });
+  </script>
+</body>
+</html>
